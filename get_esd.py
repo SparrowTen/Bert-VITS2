@@ -22,16 +22,17 @@ def get_esd():
                 this_lab_path = os.path.join(root, file)
                 with open(this_lab_path, 'r', encoding='utf-8') as f:
                     esd_row = f.read()
-                esd_row = f"{this_lab_path.replace('.lab', 'wav')}|{dataset_name}|{dataset_lang}|{esd_row}"
+                esd_row = f"{file.replace('.lab', '.wav')}|{dataset_name}|{dataset_lang}|{esd_row}"
                 esd.append(esd_row)
-                print(f'[{now}/{len(total)}] {this_lab_path} done')
+                os.remove(this_lab_path)
+                print(f'[{now}/{len(total)}] {file} done')
                 now += 1
     print(f'共 {len(esd)} 筆資料')
     
     with open(f'data/{dataset_name}/esd.list', 'w', encoding='utf-8') as f:
         for item in esd:
             f.write("%s\n" % item)
-    print('esd.list 已產生')
+    print('esd.list 已儲存')
 
 if __name__ == '__main__':
     get_esd()
