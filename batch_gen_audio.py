@@ -87,10 +87,21 @@ if __name__ == '__main__':
                 print(f'[{i + 1}/{total}] {text}')
                 
                 gen_audio_args['slices'] = text
-                reference_audio = lab_file.replace('.lab', '.wav')
-                gen_audio_args['reference_audio'] = os.path.join(input_dir, reference_audio)
-                
+            
+            output_file = lab_file.replace('.lab', '_f.wav')
+            if os.path.exists(os.path.join(output_dir, output_file)):
+                print(f'[{i + 1}/{total}] skip {output_file}')
+                continue
+            
+            reference_audio = lab_file.replace('.lab', '.wav')
+            gen_audio_args['reference_audio'] = os.path.join(input_dir, reference_audio)
+            try:
                 output_audio = generate_audio(**gen_audio_args)
-                output_file = lab_file.replace('.lab', '_f.wav')
-                wavfile.write(os.path.join(output_dir, output_file), hps.data.sampling_rate, output_audio)
-                print(f'[{i + 1}/{total}] save {output_file}')
+            except AssertionError as e:
+                print(f'[{i + 1}/{total}] have assertion error: {e}')
+                os.remove(os.path.join(input_dir, lab_file))
+                os.remove(os.path.join(input_dir, reference_audio))
+                print(f'[{i + 1}/{total}] remove {lab_file} and {reference_audio}')
+                continue
+            wavfile.write(os.path.join(output_dir, output_file), hps.data.sampling_rate, output_audio)
+            print(f'[{i + 1}/{total}] save {output_file}')
